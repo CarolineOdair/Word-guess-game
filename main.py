@@ -12,8 +12,7 @@ if __name__ == "__main__":
         file = f.readlines()
 
     word, id_ = get_main_word(file)
-    print(word, id_)
-    print(type(id_))
+    print(word)
 
     q_application = QApplication(argv)
     app = App(word, id_)
