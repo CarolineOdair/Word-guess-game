@@ -16,6 +16,7 @@ class CurrentGameDataAnalyzer:
     def __init__(self, words):
         word, id_ = self.get_main_word(words)
         self.main_word = {"word": word, "id":id_}
+        # self.main_word["word"] = "stowarzyszenie"
         self.upper_list = []
         self.down_list = []
         self.already_guessed_words = []

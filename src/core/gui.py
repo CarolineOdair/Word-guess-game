@@ -2,8 +2,8 @@ from PyQt5 import QtGui, QtWidgets, QtCore, Qt
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QLabel
 
-from connect import CurrentGameDataAnalyzer, WordStatus
-from utils import labels_features, color, Text, detailed_style, FontSize
+from .connect import CurrentGameDataAnalyzer, WordStatus
+from .utils import labels_features, color, Text, detailed_style, FontSize
 
 
 class WrongListIdGiven(Exception):
@@ -22,8 +22,8 @@ class AppFont(QtGui.QFont):
 
 class App(QtWidgets.QMainWindow):
     MAX_CHANCES = 15
-    LEFT_CHANCE_PATH = "grey_circle.svg"
-    LOST_CHANCE_PATH = "yellow_circle.svg"
+    LEFT_CHANCE_PATH = ".\static\grey_circle.svg"
+    LOST_CHANCE_PATH = ".\static\yellow_circle.svg"
 
     def __init__(self, words:list):
         super(App, self).__init__()
@@ -37,10 +37,13 @@ class App(QtWidgets.QMainWindow):
         self.LEFT_CHANCES = 15
         self.connector = CurrentGameDataAnalyzer(self.words)
         self.main_word = self.connector.main_word["word"]
+        # self.main_word = "stowarzyszenie"
+        print(self.main_word)
 
     def reset_game(self) -> None:
         self.end_game_frame.close()
         self.end_game_frame.deleteLater()
+        self.widget1.setGraphicsEffect(QtWidgets.QGraphicsOpacityEffect().setOpacity(1))
         self.init_data()
         self.reset_label_layout(self.upper_layout)
         self.reset_label_layout(self.down_layout)
@@ -61,9 +64,9 @@ class App(QtWidgets.QMainWindow):
         window_layout.addWidget(upper_frame, 1)
         window_layout.addWidget(main_frame, 8)
 
-        widget1 = QtWidgets.QWidget(self)
-        widget1.setLayout(window_layout)
-        self.setCentralWidget(widget1)
+        self.widget1 = QtWidgets.QWidget(self)
+        self.widget1.setLayout(window_layout)
+        self.setCentralWidget(self.widget1)
 
     def upper_frame_config(self, frame: QFrame) -> None:
         game_name_label = QLabel()
@@ -285,6 +288,10 @@ class App(QtWidgets.QMainWindow):
         Y_HEIGHT = X_WIDTH
         X_MOVE = 850
         Y_MOVE = 200
+
+        opacity_effect = QtWidgets.QGraphicsOpacityEffect()
+        opacity_effect.setOpacity(0.4)
+        self.widget1.setGraphicsEffect(opacity_effect)
 
         # init frame
         self.end_game_frame = QFrame(self)

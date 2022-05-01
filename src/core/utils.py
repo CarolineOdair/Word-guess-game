@@ -17,7 +17,7 @@ class FontSize:
     END_GAME_WORD = 25
 
 
-labels_features = [{"size": 35, "opacity": 0.9, "height": 70}, {"size": 30, "opacity": 0.80, "height": 65},
+labels_features = [{"size": 35, "opacity": 0.85, "height": 70}, {"size": 30, "opacity": 0.80, "height": 65},
                    {"size": 25, "opacity": 0.70, "height": 55}, {"size": 20, "opacity": 0.5, "height": 45},
                    {"size": 15, "opacity": 0.3, "height": 40}]
 
@@ -26,7 +26,7 @@ color = {
     "font_1": "#F9F5F5",
     "font_2_grey": "#606060",
     "font_3_green": "#3F9442",
-    "warning_yellow": "#f1c40f"
+    "warning_yellow": "#DCC966"
     }
 
 main_style = f"""
