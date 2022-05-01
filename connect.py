@@ -1,4 +1,6 @@
-from utils import get_word_id_or_None
+# from utils import get_word_id_or_None
+import random
+import requests
 
 
 class WordStatus:
@@ -8,10 +10,11 @@ class WordStatus:
     UNKNOWN = "word_not_in_db"
 
 
-class LocalDb:
+class CurrentGameDataAnalyzer:
     URL = "https://betsapi.sraka.online/slowas?slowo="
 
-    def __init__(self, word, id_):
+    def __init__(self, words):
+        word, id_ = self.get_main_word(words)
         self.main_word = {"word": word, "id":id_}
         self.upper_list = []
         self.down_list = []
@@ -34,7 +37,7 @@ class LocalDb:
         elif self.has_been_already_typed(word):
             return {"word": word, "status": WordStatus.ALREADY_GUESSED}
 
-        id_ = get_word_id_or_None(word) # int for word in db, None for not found word
+        id_ = self.get_word_id_or_None(word) # int for word in db, None for not found word
         # if word in db: id_ [int]
         if id_:
             self.already_guessed_words.append(word)
@@ -43,6 +46,31 @@ class LocalDb:
         # else - word not in db: id_ [None]
         else:
             return ({"word": word, "status": WordStatus.UNKNOWN})
+
+    def draw_main_word(self, words: list) -> str:
+        num_of_words = len(words)
+        word_number = random.randrange(0, num_of_words - 1)
+        main_word = words[word_number].strip()
+        return main_word.lower()
+
+    def get_word_id_or_None(self, word: str) -> (int or None):
+        word_url = "https://betsapi.sraka.online/slowas?slowo="
+        headers = {'Accept': 'application/json'}
+        url = word_url + word
+        req = requests.get(url, headers=headers)
+        response = req.json()
+        if len(response) == 0:
+            return None
+        else:
+            id_ = response[0]["id"]
+            return id_
+
+    def get_main_word(self, words) -> (str, int or None):
+        while True:
+            word = self.draw_main_word(words)
+            id_ = self.get_word_id_or_None(word)
+            if id_:
+                return (word, id_)
 
     def is_main_word(self, word: str) -> bool:
         """ Return `True` if the given word is the one to be guessed. """
