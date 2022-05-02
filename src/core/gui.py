@@ -16,26 +16,25 @@ class App(QtWidgets.QMainWindow):
     MAX_CHANCES = 15
     LEFT_CHANCE_PATH = ".\static\grey_circle.svg"
     LOST_CHANCE_PATH = ".\static\yellow_circle.svg"
+    ICON = ".\static\icon.svg"
 
     def __init__(self, words:list):
         super().__init__()
         self.words = words
-        self.setWindowTitle(Text.WINDOW_TITLE)
         self.setWindowState(Qt.WindowMaximized)
+        self.setWindowTitle(Text.WINDOW_TITLE)
+        self.setWindowIcon(QtGui.QIcon(self.ICON))
         self.init_data()
         self.init_UI()
 
     def init_data(self) -> None:
         """ Configure data that has to be configured every time game starts. """
-
         # chances for entering invalid words
         self.LEFT_CHANCES = 15
         # new CurrentGameDataAnalyzer object
         self.connector = CurrentGameDataAnalyzer(self.words)
         # word to be guessed
         self.main_word = self.connector.main_word["word"]
-
-        print(self.main_word)
 
     def init_UI(self) -> None:
         """ Init user interface needed while opening the window. """
@@ -124,6 +123,15 @@ class App(QtWidgets.QMainWindow):
         self.opacity.setOpacity(0.3)
         self.root_widget.setGraphicsEffect(self.opacity)
         self.opacity.setEnabled(turn_off)
+
+    def fix_widget_window_pos(self, widget, width:int = 2, height:int = 2):
+        """
+        Move widget to 1/width of a window and 1/height of a window.
+        Default values (width=2 and height=2) center the widget.
+        """
+        x_move = self.width()/width - widget.width()/width
+        y_move = self.height()/height - widget.height()/height
+        widget.move(x_move, y_move)
 
     def enter_pressed_action(self) -> None:
         """ Action after pressing enter. """
@@ -243,6 +251,7 @@ class App(QtWidgets.QMainWindow):
     def display_msg(self, msg:str) -> None:
         """ Display label with given message. """
         msg_label = QMsgLabel(self, msg)
+        self.fix_widget_window_pos(msg_label, width=1.8, height=2.5)
         msg_label.show()
 
     def display_end_game_frame(self, msg, word) -> None:
@@ -254,6 +263,7 @@ class App(QtWidgets.QMainWindow):
         self.end_game_frame = QEndGameFrame(self, fail_or_win_msg=msg, main_word=word)
         self.end_game_frame.restart_button.clicked.connect(self.reset_game)
         self.end_game_frame.exit_button.clicked.connect(self.close)
+        self.fix_widget_window_pos(self.end_game_frame)
         self.end_game_frame.show()
 
     def reset_game(self) -> None:

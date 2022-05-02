@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QLabel, QFrame
 
 from .config import AppFont, FontSize, Text, detailed_style
@@ -71,6 +71,8 @@ class QEndGameFrame(QFrame):
         self.exit_button.setText("Wyjdź z gry")
         self.exit_button.setFont(self.FONT)
 
+        self.resize_frame_width_by_widget_text(word_label)
+
         # init layout and add above created widgets with proper height proportions
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(msg_label, 1)
@@ -78,3 +80,10 @@ class QEndGameFrame(QFrame):
         layout.addWidget(word_label, 3)
         layout.addWidget(self.restart_button, 1)
         layout.addWidget(self.exit_button, 1)
+
+    def resize_frame_width_by_widget_text(self, widget):
+        """ Resize main frame width if default one is too narrow. """
+        font_metrics = widget.fontMetrics()
+        text_length = QtGui.QFontMetrics(font_metrics).width(widget.text())
+        if self.width() < text_length * 1.2:
+            self.setFixedWidth(text_length * 1.2)

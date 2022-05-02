@@ -2,7 +2,7 @@ from PyQt5.QtGui import QFont
 
 class Text:
     # window title
-    WINDOW_TITLE = "SŁOWNIKOWO"
+    WINDOW_TITLE = "Słownikowo"
     # inside window
     GAME_NAME = "SŁOWNIKOWO"
     TYPING_EDITLINE = "WPISZ SŁOWO"
@@ -16,16 +16,17 @@ class Text:
     LOST = "Nie tym razem."
 
 class AppFont(QFont):
+    """ Font (family, weight, thickness, size) used in the app. """
     def __init__(self, font_size):
         super(AppFont, self).__init__()
-        self.setBold(True)
-        self.setWeight(700)
         self.setFamily("Segoe UI")
         self.setStyleHint(self.SansSerif)
+        self.setWeight(700)
         self.setBold(True)
         self.setPointSize(font_size)
 
 class FontSize:
+    """ Font sizes used in the app. """
     GAME_NAME = 45
     EDITLINE = 32
     ALPHABET = 25
@@ -38,11 +39,11 @@ labels_features = [{"size": 35, "opacity": 0.85, "height": 70}, {"size": 30, "op
                    {"size": 15, "opacity": 0.3, "height": 40}]
 
 color = {
-    "background": "#202020",
-    "font_1": "#F9F5F5",
-    "font_2_grey": "#606060",
-    "font_3_green": "#3F9442",
-    "warning_yellow": "#DCC966"
+    "background": "#202020",  # very dark gray (mostly black)
+    "font_1": "#F9F9F9",  # very light gray (mostly white)
+    "font_2_grey": "#606060",  # very dark gray
+    "font_3_green": "#3F9442",  # dark moderate lime green
+    "warning_yellow": "#DCC966"  # soft yellow
     }
 
 main_style = f"""
@@ -68,7 +69,6 @@ main_style = f"""
         }}
         
     QPushButton:hover{{
-        background: #FFFFFF;
         color: {color["font_2_grey"]};
         }}
         
@@ -97,5 +97,5 @@ detailed_style = {
         padding: 5px 5px 5px 5px;""",
 
     "end_game_label":
-        "border: none",
+        "border: none;"
 }
