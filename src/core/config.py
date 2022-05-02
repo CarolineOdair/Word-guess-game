@@ -2,7 +2,7 @@ from PyQt5.QtGui import QFont
 
 class Text:
     # window title
-    WINDOW_TITLE = "Słownikowo"
+    WINDOW_TITLE = " --  Słownikowo dla Kuby  -- "
     # inside window
     GAME_NAME = "SŁOWNIKOWO"
     TYPING_EDITLINE = "WPISZ SŁOWO"
