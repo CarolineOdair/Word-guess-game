@@ -2,11 +2,22 @@ import requests
 from bs4 import BeautifulSoup
 import time
 
+def main():
+    words_processor = WordSearcherAndAnalyzer()
+    words = words_processor.main()
+
+    # save to csv file
+    with open('..\src\static\word_list.csv', 'w', encoding="utf-8") as file:
+        for word in words:
+            file.write(word + '\n')
+
 class WordSearcherAndAnalyzer:
     def __init__(self):
         self.pages = ["1-2000", "2001-4000", "4001-6000", "6001-8000", "8001-10000"]
-        self.wiki_url = "https://pl.wiktionary.org/wiki/Indeks:Polski_-_Najpopularniejsze_s%C5%82owa_"
-        self.slownikowo_database_url = "https://betsapi.sraka.online/slowas?slowo="
+        self.WIKI_URL = "https://pl.wiktionary.org/wiki/Indeks:Polski_-_Najpopularniejsze_s%C5%82owa_"
+        self.SLOWNIKOWO_URL = "https://betsapi.sraka.online/slowas?slowo="
+        self.HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+                   'Accept': 'application/json'}
 
     def main(self):
         """ Main function which gets and filter data """
@@ -20,7 +31,7 @@ class WordSearcherAndAnalyzer:
         """ Get words from wikipedia and return as a list """
         words_all = []
         for page in pages:
-            url = self.wiki_url + page
+            url = self.WIKI_URL + page
             words = self.get_data(url)
             words_all.extend(words)
         return words_all
@@ -28,7 +39,7 @@ class WordSearcherAndAnalyzer:
     def get_data(self, url:str) -> list:
         """ Get list of all words from a request """
         # make request
-        req = requests.get(url)
+        req = requests.get(url, headers=self.HEADERS)
         req = req.text
         soup = BeautifulSoup(req, 'html.parser')
 
@@ -66,9 +77,10 @@ class WordSearcherAndAnalyzer:
         i = 0
         words_ = []
         for x in range(0, len(words)):
-            url = self.slownikowo_database_url + words[x]
-            req = requests.get(url)
-            if len(req.text) > 0:
+            url = self.SLOWNIKOWO_URL + words[x]
+            req = requests.get(url, headers=self.HEADERS)
+            response = req.json()
+            if len(response) > 0:
                 words_.append(words[x])
                 print(i)
                 i += 1
@@ -77,10 +89,5 @@ class WordSearcherAndAnalyzer:
 
 
 if __name__ == "__main__":
-    words_processor = WordSearcherAndAnalyzer()
-    words = words_processor.main()
 
-    # save to csv file
-    with open('word_list.csv', 'w', encoding="utf-8") as file:
-        for word in words:
-            file.write(word + '\n')
+    main()
