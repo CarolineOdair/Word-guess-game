@@ -1,12 +1,17 @@
-from PyQt5.QtGui import  QFont
+from PyQt5.QtGui import QFont
 
 class Text:
-    WINDOW_TITLE =  "SŁOWNIKOWO"
+    # window title
+    WINDOW_TITLE = "SŁOWNIKOWO"
+    # inside window
     GAME_NAME = "SŁOWNIKOWO"
     TYPING_EDITLINE = "WPISZ SŁOWO"
     ALPHABET = " A Ą B C D E Ę F G H I J K L Ł M N Ń O Ó P R S Ś T U W X Y Z Ź Ż "
-    WORD_UNKNOWN =  "Brak podanego słowa w bazie"
+    # on pop-up widgets - on msg_labels
+    WORD_UNKNOWN = "Brak podanego słowa w bazie"
     WORD_ALREADY_GUESSED = "To słowo zostało już wpisane"
+    # on pop-up widgets - on end_game_frame
+    WORD_SOUNDED = "Szukane słowo brzmiało:"
     WIN = "Brawo! Wygrałeś!"
     LOST = "Nie tym razem."
 
@@ -93,5 +98,4 @@ detailed_style = {
 
     "end_game_label":
         "border: none",
-
 }
