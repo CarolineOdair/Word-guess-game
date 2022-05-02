@@ -1,24 +1,15 @@
-from PyQt5 import QtGui, QtWidgets, QtCore, Qt
+from PyQt5 import Qt, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFrame, QLabel
+from PyQt5.QtWidgets import QFrame
 
+from .config import FontSize, Text
+from .config import color, detailed_style, labels_features
 from .connect import CurrentGameDataAnalyzer, WordStatus
-from .utils import labels_features, color, Text, detailed_style, FontSize
+from .widgets import QEndGameFrame, QGuessedWordsLabel, QMsgLabel, QNoSpacingVBoxLayout, QTypicalLabel, QTypingLine
 
 
 class WrongListIdGiven(Exception):
     pass
-
-class AppFont(QtGui.QFont):
-    def __init__(self, font_size):
-        super(AppFont, self).__init__()
-        self.setBold(True)
-        self.setWeight(700)
-        self.setFamily("Segoe UI")
-        self.setStyleHint(self.SansSerif)
-        self.setBold(True)
-        self.setPointSize(font_size)
-
 
 class App(QtWidgets.QMainWindow):
     MAX_CHANCES = 15
@@ -26,7 +17,7 @@ class App(QtWidgets.QMainWindow):
     LOST_CHANCE_PATH = ".\static\yellow_circle.svg"
 
     def __init__(self, words:list):
-        super(App, self).__init__()
+        super().__init__()
         self.words = words
         self.setWindowTitle(Text.WINDOW_TITLE)
         self.setWindowState(Qt.WindowMaximized)
@@ -40,47 +31,24 @@ class App(QtWidgets.QMainWindow):
         # self.main_word = "stowarzyszenie"
         print(self.main_word)
 
-    def reset_game(self) -> None:
-        self.end_game_frame.close()
-        self.end_game_frame.deleteLater()
-        self.widget1.setGraphicsEffect(QtWidgets.QGraphicsOpacityEffect().setOpacity(1))
-        self.init_data()
-        self.reset_label_layout(self.upper_layout)
-        self.reset_label_layout(self.down_layout)
-        self.init_words_labels(self.upper_layout, labels_features[::-1])
-        self.init_words_labels(self.down_layout, labels_features)
-        self.add_chances_vis()
-
     def init_UI(self) -> None:
-        upper_frame = QFrame()
-        self.upper_frame_config(upper_frame)
+        game_name_label = QTypicalLabel(text=Text.GAME_NAME, font_size=FontSize.GAME_NAME)
 
         main_frame = QFrame()
         self.main_frame_config(main_frame)
 
-        window_layout = QtWidgets.QVBoxLayout()
-        window_layout.setSpacing(0)
-        window_layout.setContentsMargins(0,0,0,0)
-        window_layout.addWidget(upper_frame, 1)
+        window_layout = QNoSpacingVBoxLayout()
+        window_layout.addWidget(game_name_label, 1)
         window_layout.addWidget(main_frame, 8)
 
-        self.widget1 = QtWidgets.QWidget(self)
-        self.widget1.setLayout(window_layout)
-        self.setCentralWidget(self.widget1)
-
-    def upper_frame_config(self, frame: QFrame) -> None:
-        game_name_label = QLabel()
-        font = AppFont(FontSize.GAME_NAME)
-        game_name_label.setFont(font)
-        game_name_label.setText(Text.GAME_NAME)
-        game_name_label.setAlignment(Qt.AlignCenter)
-
-        layout = QtWidgets.QVBoxLayout(frame)
-        layout.addWidget(game_name_label)
+        self.root_widget = QtWidgets.QWidget(self)
+        self.root_widget.setLayout(window_layout)
+        self.setCentralWidget(self.root_widget)
 
     def main_frame_config(self, frame: QFrame) -> None:
         self.left_frame = QFrame()
-        self.left_frame_config()
+        self.dot_layout = QNoSpacingVBoxLayout(self.left_frame)
+        self.add_chances_vis()
 
         self.right_frame = QFrame()
         self.right_frame_config()
@@ -89,32 +57,12 @@ class App(QtWidgets.QMainWindow):
         main_layout.addWidget(self.left_frame, 1)
         main_layout.addWidget(self.right_frame, 9)
 
-    def left_frame_config(self) -> None:
-        self.dot_layout = QtWidgets.QVBoxLayout(self.left_frame)
-        self.dot_layout.setSpacing(0)
-        self.dot_layout.setContentsMargins(0, 0, 0, 0)
-        self.add_chances_vis()
-
-    def add_chances_vis(self) -> None:
-        self.reset_dot_layout()
-
-        for i in range(self.MAX_CHANCES):
-            label = QtWidgets.QLabel()
-            if i < self.MAX_CHANCES - self.LEFT_CHANCES:
-                pixmap = QtGui.QPixmap(self.LOST_CHANCE_PATH)
-            else:
-                pixmap = QtGui.QPixmap(self.LEFT_CHANCE_PATH)
-            label.setPixmap(pixmap)
-            label.setAlignment(Qt.AlignCenter)
-
-            self.dot_layout.addWidget(label)
-
     def right_frame_config(self) -> None:
         guessing_frame = QFrame()
         self.guessing_frame_config(guessing_frame)
 
-        alphabet_label = QLabel()
-        self.alphabet_label_config(alphabet_label)
+        alphabet_label = QTypicalLabel(text=Text.ALPHABET,
+                                       font_size=FontSize.ALPHABET, style_sheet=detailed_style["alphabet_label"])
 
         layout = QtWidgets.QVBoxLayout(self.right_frame)
         layout.addWidget(guessing_frame, 10)
@@ -122,92 +70,41 @@ class App(QtWidgets.QMainWindow):
 
     def guessing_frame_config(self, frame: QFrame) -> None:
         self.upper_words_frame = QFrame()
-        self.upper_list_frame_config()
+        self.upper_layout = QNoSpacingVBoxLayout(self.upper_words_frame)
+        self.init_words_labels(self.upper_layout, labels_features[::-1])
 
-        self.typing_editline = QtWidgets.QLineEdit()
-        self.typing_editline_config()
+        self.typing_editline = QTypingLine()
+        self.typing_editline.returnPressed.connect(self.enter_pressed_action)
 
         self.lower_words_frame = QFrame()
-        self.lower_list_frame_config()
+        self.down_layout = QNoSpacingVBoxLayout(self.lower_words_frame)
+        self.init_words_labels(self.down_layout, labels_features)
 
-        layout = QtWidgets.QVBoxLayout(frame)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout = QNoSpacingVBoxLayout(frame)
         layout.addWidget(self.upper_words_frame, 6)
         layout.addWidget(self.typing_editline, 1, Qt.AlignHCenter)
         layout.addWidget(self.lower_words_frame, 6)
 
-    def typing_editline_config(self) -> None:
-        WIDTH = 800
-        font = AppFont(FontSize.EDITLINE)
-
-        self.typing_editline.setFixedWidth(WIDTH)
-        self.typing_editline.setAlignment(Qt.AlignCenter)
-        self.typing_editline.setFont(font)
-        self.typing_editline.returnPressed.connect(self.enter_pressed_action)
-        self.typing_editline.setPlaceholderText(Text.TYPING_EDITLINE)
-
-    # TODO
-    # seems nice but indicates problem - just after pressing enter app an empty string
-    # is given as if Enter was pressed twice
-    #     self.setFocus()
-    #
-    # def keyPressEvent(self, event):
-    #     self.typing_editline.setFocus()
-    #     self.typing_editline.keyPressEvent(event)
-
-    def upper_list_frame_config(self) -> None:
-        self.upper_layout = QtWidgets.QVBoxLayout(self.upper_words_frame)
-        self.upper_layout.setSpacing(0)
-        self.upper_layout.setContentsMargins(0, 0, 0, 0)
-        self.init_words_labels(self.upper_layout, labels_features[::-1])
-
-    def lower_list_frame_config(self) -> None:
-        self.down_layout = QtWidgets.QVBoxLayout(self.lower_words_frame)
-        self.down_layout.setSpacing(0)
-        self.down_layout.setContentsMargins(0, 0, 0, 0)
-        self.init_words_labels(self.down_layout, labels_features)
-
     def init_words_labels(self, layout: QtWidgets.QLayout, features:list) -> None:
-
         for feat in features:
-            label = QLabel()
-            label.setText("")
-            label.setFixedHeight(feat["height"])
-            label.setAlignment(Qt.AlignHCenter)
-
-            opacity_effect = QtWidgets.QGraphicsOpacityEffect()
-            opacity_effect.setOpacity(feat["opacity"])
-            label.setGraphicsEffect(opacity_effect)
-
-            font = AppFont(feat["size"])
-            label.setFont(font)
-
+            h = feat["height"]
+            op = feat["opacity"]
+            f_size = feat["size"]
+            label = QGuessedWordsLabel(height=h, opacity=op, font_size=f_size)
             layout.addWidget(label)
 
-    def alphabet_label_config(self, label: QLabel) -> None:
-        label.setText(Text.ALPHABET)
-        label.setAlignment(Qt.AlignCenter)
-        font = AppFont(FontSize.ALPHABET)
-        label.setFont(font)
-        label.setStyleSheet(detailed_style["alphabet_label"])
-
-    def reset_label_layout(self, layout: QtWidgets.QLayout) -> None:
-        for i in reversed(range(layout.count())):
-            layout.itemAt(i).widget().setParent(None)
-
-    def reset_dot_layout(self) -> None:
-        for i in reversed(range(self.dot_layout.count())):
-            self.dot_layout.itemAt(i).widget().setParent(None)
-
+    def turn_off_root_widget_opacity(self, turn_off: bool) -> None:
+        self.opacity = QtWidgets.QGraphicsOpacityEffect()
+        self.opacity.setOpacity(0.3)
+        self.root_widget.setGraphicsEffect(self.opacity)
+        self.opacity.setEnabled(turn_off)
 
     def enter_pressed_action(self) -> None:
         # get typed word
         word = self.typing_editline.text().lower()
-
         # connect with db and return word info -> status, id_, list, of words
         resp = self.connector.check_word(word)
-
+        # clear edit line
         self.typing_editline.clear()
 
         # depending on word_status do something
@@ -264,74 +161,46 @@ class App(QtWidgets.QMainWindow):
                     f'<font color={color["font_3_green"]}>{word["word"][:word["n_letters"]]}</font>'
                     f'<font color={color["font_1"]}>{word["word"][word["n_letters"]:]}</font>')
 
+    def add_chances_vis(self) -> None:
+        self.reset_layout(self.dot_layout)
+
+        for i in range(self.MAX_CHANCES):
+            label = QtWidgets.QLabel()
+            if i < self.MAX_CHANCES - self.LEFT_CHANCES:
+                pixmap = QtGui.QPixmap(self.LOST_CHANCE_PATH)
+            else:
+                pixmap = QtGui.QPixmap(self.LEFT_CHANCE_PATH)
+            label.setPixmap(pixmap)
+            label.setAlignment(Qt.AlignCenter)
+
+            self.dot_layout.addWidget(label)
+
+    def reset_layout(self, layout: QtWidgets.QLayout) -> None:
+        for i in reversed(range(layout.count())):
+            layout.itemAt(i).widget().setParent(None)
+
     def display_msg(self, msg:str) -> None:
-        MSG_TIME_DISPL = 1500
-        X_MOVE = 900
-        Y_MOVE = 405
-
-        msg_label = QLabel(self)
-        msg_label.setText(msg)
-
-        msg_label.move(X_MOVE, Y_MOVE)
-        msg_label.setStyleSheet(detailed_style["msg_label"])
-        msg_label.adjustSize()
-
+        msg_label = QMsgLabel(self, msg)
         msg_label.show()
-        QtCore.QTimer.singleShot(MSG_TIME_DISPL, msg_label.deleteLater)
 
     def display_end_game_frame(self, msg, word) -> None:
-        # TODO reorganise the function so it would be shorter
         # TODO fix width of the frame if word is long ("stowarzyszenie" f.ex.)
-        # TODO blur main window while displaying end_game_frame
 
-        X_WIDTH = 400
-        Y_HEIGHT = X_WIDTH
-        X_MOVE = 850
-        Y_MOVE = 200
-
-        opacity_effect = QtWidgets.QGraphicsOpacityEffect()
-        opacity_effect.setOpacity(0.4)
-        self.widget1.setGraphicsEffect(opacity_effect)
-
-        # init frame
-        self.end_game_frame = QFrame(self)
-        self.end_game_frame.move(X_MOVE, Y_MOVE)
-        self.end_game_frame.setMinimumSize(X_WIDTH, Y_HEIGHT)
-        # self.end_game_frame.set
+        self.turn_off_root_widget_opacity(True)
+        self.end_game_frame = QEndGameFrame(self, msg=msg, word=word)
+        self.end_game_frame.restart_button.clicked.connect(self.reset_game)
+        self.end_game_frame.exit_button.clicked.connect(self.close)
         self.end_game_frame.show()
-        self.end_game_frame.setStyleSheet(detailed_style["end_game_frame"])
 
+    def reset_game(self) -> None:
+        self.end_game_frame.close()
+        self.end_game_frame.deleteLater()
 
-        # creating frame widgets
-        msg_label = QLabel(msg)
-        end_game_label = QLabel(Text.GAME_END)
-        word_label =QLabel(word.upper())
+        self.init_data()
 
-        restart_button = QtWidgets.QPushButton("Zagraj jeszcze raz")
-        restart_button.clicked.connect(self.reset_game)
-
-        exit_button = QtWidgets.QPushButton("Wyjdź z gry")
-        exit_button.clicked.connect(self.close)
-
-        widgets = [msg_label, end_game_label, word_label, restart_button, exit_button]
-        self.get_end_game_frame_widgets(widgets)
-
-
-        layout = QtWidgets.QVBoxLayout(self.end_game_frame)
-        layout.addWidget(msg_label, 1)
-        layout.addWidget(end_game_label, 1)
-        layout.addWidget(word_label, 3)
-        layout.addWidget(restart_button, 1)
-        layout.addWidget(exit_button, 1)
-
-    def get_end_game_frame_widgets(self, widgets: list) -> list:
-        FONT = AppFont(FontSize.END_GAME_FRAME)
-
-        for widget in widgets:
-            widget.setFont(FONT)
-            if isinstance(widget, QLabel):
-                widget.setAlignment(Qt.AlignCenter)
-                widget.setStyleSheet(detailed_style["end_game_label"])
-
-        font = AppFont(FontSize.END_GAME_WORD)
-        widgets[2].setFont(font)
+        self.turn_off_root_widget_opacity(False)
+        self.reset_layout(self.upper_layout)
+        self.reset_layout(self.down_layout)
+        self.init_words_labels(self.upper_layout, labels_features[::-1])
+        self.init_words_labels(self.down_layout, labels_features)
+        self.add_chances_vis()

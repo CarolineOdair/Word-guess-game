@@ -1,4 +1,3 @@
-# from utils import get_word_id_or_None
 import random
 import requests
 
@@ -13,7 +12,7 @@ class WordStatus:
 class CurrentGameDataAnalyzer:
     URL = "https://betsapi.sraka.online/slowas?slowo="
 
-    def __init__(self, words):
+    def __init__(self, words:list):
         word, id_ = self.get_main_word(words)
         self.main_word = {"word": word, "id":id_}
         # self.main_word["word"] = "stowarzyszenie"
@@ -66,7 +65,7 @@ class CurrentGameDataAnalyzer:
             id_ = response[0]["id"]
             return id_
 
-    def get_main_word(self, words) -> (str, int or None):
+    def get_main_word(self, words:list) -> (str, int or None):
         while True:
             word = self.draw_main_word(words)
             id_ = self.get_word_id_or_None(word)

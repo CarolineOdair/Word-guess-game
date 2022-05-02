@@ -1,3 +1,5 @@
+from PyQt5.QtGui import  QFont
+
 class Text:
     WINDOW_TITLE =  "SŁOWNIKOWO"
     GAME_NAME = "SŁOWNIKOWO"
@@ -5,12 +7,21 @@ class Text:
     ALPHABET = " A Ą B C D E Ę F G H I J K L Ł M N Ń O Ó P R S Ś T U W X Y Z Ź Ż "
     WORD_UNKNOWN =  "Brak podanego słowa w bazie"
     WORD_ALREADY_GUESSED = "To słowo zostało już wpisane"
-    GAME_END = "Szukane słowo brzmiało:"
     WIN = "Brawo! Wygrałeś!"
     LOST = "Nie tym razem."
 
+class AppFont(QFont):
+    def __init__(self, font_size):
+        super(AppFont, self).__init__()
+        self.setBold(True)
+        self.setWeight(700)
+        self.setFamily("Segoe UI")
+        self.setStyleHint(self.SansSerif)
+        self.setBold(True)
+        self.setPointSize(font_size)
+
 class FontSize:
-    GAME_NAME = 50
+    GAME_NAME = 45
     EDITLINE = 32
     ALPHABET = 25
     END_GAME_FRAME = 15
