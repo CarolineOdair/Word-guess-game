@@ -42,7 +42,7 @@ color = {
     "background": "#202020",  # very dark gray (mostly black)
     "font_1": "#F9F9F9",  # very light gray (mostly white)
     "font_2_grey": "#606060",  # very dark gray
-    "font_3_green": "#3F9442",  # dark moderate lime green
+    "font_3_green": "#538D4E",  # mostly desaturated dark lime green
     "warning_yellow": "#DCC966"  # soft yellow
     }
 
