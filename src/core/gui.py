@@ -1,9 +1,11 @@
+import ctypes
+
 from PyQt5 import Qt, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame
 
 from .config import FontSize, Text
-from .config import color, detailed_style, labels_features
+from .config import color, detailed_style, labels_features, main_style
 from .connect import CurrentGameDataAnalyzer, WordStatus
 from .window_widgets import QGuessedWordsLabel, QNoSpacingVBoxLayout, QTypicalLabel, QTypingLine
 from .pop_up_widgets import QEndGameFrame, QMsgLabel
@@ -21,11 +23,14 @@ class App(QtWidgets.QMainWindow):
     def __init__(self, words:list):
         super().__init__()
         self.words = words
+
         self.setWindowState(Qt.WindowMaximized)
-        self.setWindowTitle(Text.WINDOW_TITLE)
-        self.setWindowIcon(QtGui.QIcon(self.ICON))
+        self.set_icons_and_title()
+
         self.init_data()
         self.init_UI()
+
+        self.setStyleSheet(main_style)
 
     def init_data(self) -> None:
         """ Configure data that has to be configured every time game starts. """
@@ -35,6 +40,14 @@ class App(QtWidgets.QMainWindow):
         self.connector = CurrentGameDataAnalyzer(self.words)
         # word to be guessed
         self.main_word = self.connector.main_word["word"]
+
+    def set_icons_and_title(self):
+        # window title and icon
+        self.setWindowTitle(Text.WINDOW_TITLE)
+        self.setWindowIcon(QtGui.QIcon(self.ICON))
+        # taskbar icon, copied from StackOverflow
+        my_app_id = u'mycompany.myproduct.subproduct.version'
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
 
     def init_UI(self) -> None:
         """ Init user interface needed while opening the window. """
@@ -137,7 +150,7 @@ class App(QtWidgets.QMainWindow):
         """ Action after pressing enter. """
 
         # get typed word
-        word = self.typing_editline.text().lower()
+        word = self.typing_editline.text().lower().strip()
         # connect with db and return word info -> status, id_, list of words, list's id
         resp = self.connector.check_word_and_get_info(word)
         # clear edit line

@@ -1,5 +1,5 @@
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QLabel, QFrame
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFrame, QLabel
 
 from .config import AppFont, FontSize, Text, detailed_style
 from .window_widgets import QTypicalLabel
