@@ -18,7 +18,7 @@ class App(QtWidgets.QMainWindow):
     MAX_CHANCES = 15
     LEFT_CHANCE_PATH = ".\static\grey_circle.svg"
     LOST_CHANCE_PATH = ".\static\yellow_circle.svg"
-    ICON = ".\static\icon.svg"
+    ICON = ".\static\icon.ico"
 
     def __init__(self, words:list):
         super().__init__()
