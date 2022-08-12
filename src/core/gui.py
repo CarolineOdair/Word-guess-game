@@ -271,6 +271,7 @@ class App(QtWidgets.QMainWindow):
         """ Display end game frame and change root_widget (in main window) visual settings """
         # turn on lower opacity
         self.turn_off_root_widget_opacity(True)
+        self.typing_editline.setReadOnly(True)
 
         # create frame and connect its buttons to function
         self.end_game_frame = QEndGameFrame(self, fail_or_win_msg=msg, main_word=word)
@@ -290,6 +291,7 @@ class App(QtWidgets.QMainWindow):
 
         # turn on 100% opacity
         self.turn_off_root_widget_opacity(False)
+        self.typing_editline.setReadOnly(False)
 
         # display updated chances (max chances)
         self.add_chances_vis()
